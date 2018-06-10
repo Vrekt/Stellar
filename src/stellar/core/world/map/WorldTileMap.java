@@ -37,6 +37,7 @@ public abstract class WorldTileMap {
 
         tile.setX(x);
         tile.setY(y);
+        tile.setLocation(new Location(x, y));
 
         BoundingBox2D box = new BoundingBox2D(x, y, tileWidth, tileHeight);
         tileMap.put(new Location(x, y, box), tile);
@@ -116,9 +117,6 @@ public abstract class WorldTileMap {
      * @param y the Y coordinate.
      */
     public final void removeTile(double x, double y) {
-
-        // TODO: Concurrency exceptions?
-
         Tile tile = getTileFromAllTiles(x, y);
         if (tile == null) {
             return;

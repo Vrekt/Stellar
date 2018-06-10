@@ -32,14 +32,6 @@ public class FixedGameLoop implements Runnable {
         now = System.currentTimeMillis();
 
         thread.start();
-        if (manager.getType() == GameWindow.DrawType.PANEL) {
-            while (manager.isGameRunning()) {
-                // if we are ready for the next update, update the canvas.
-                if (doDraw) {
-                    manager.getWindow().updateCanvas();
-                }
-            }
-        }
     }
 
     /**
@@ -78,6 +70,10 @@ public class FixedGameLoop implements Runnable {
 
                 if (doTick) {
                     manager.onTick();
+                }
+
+                if (doDraw) {
+                    manager.getWindow().updateCanvas();
                 }
 
             }

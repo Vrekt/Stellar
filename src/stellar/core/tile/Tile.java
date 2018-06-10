@@ -12,7 +12,6 @@ public class Tile {
 
     private BufferedImage texture;
     private TileProperties tileProperties;
-
     private Location location;
     private double x, y, width, height;
     private int uniqueID;
@@ -37,6 +36,7 @@ public class Tile {
 
         this.width = width;
         this.height = height;
+
     }
 
     /**

@@ -1,13 +1,13 @@
 package stellar.core;
 
-import javax.swing.WindowConstants;
+import javax.swing.JFrame;
 import java.awt.Component;
 
 public class WindowPreferences {
 
     private boolean resizable = false, focusable = true;
     private Component relativeLocation = null;
-    private int closeOperation = WindowConstants.EXIT_ON_CLOSE;
+    private int closeOperation = JFrame.EXIT_ON_CLOSE;
 
     /**
      * Initialize the frame.
@@ -31,7 +31,7 @@ public class WindowPreferences {
      * @param focusable focusable or not.
      */
     public WindowPreferences(boolean resizable, boolean focusable) {
-        this(resizable, focusable, null, WindowConstants.EXIT_ON_CLOSE);
+        this(resizable, focusable, null, JFrame.EXIT_ON_CLOSE);
     }
 
     /**
