@@ -4,6 +4,7 @@ import stellar.core.input.InputAdapter;
 import stellar.core.sprite.SpriteManager;
 import stellar.core.thread.FixedGameLoop;
 import stellar.core.state.GameState;
+import stellar.core.thread.UpdateMethod;
 import stellar.log.DebugLogger;
 
 import java.awt.Graphics2D;
@@ -24,6 +25,7 @@ public class GameManager {
     private final List<GameState> gameStack = new ArrayList<>();
 
     private BufferStrategy bufferStrategy;
+    private FixedGameLoop fixedGameLoop;
 
     /**
      * Initialize the GameManager.
@@ -51,9 +53,11 @@ public class GameManager {
     }
 
     /**
-     * Show the window and start the gameloop.
+     * Start the gameloop and show the window.
+     *
+     * @param method Specify the UpdateMethod.
      */
-    public void start() {
+    public void start(UpdateMethod method) {
         isGameRunning = true;
         window.start(type);
 
@@ -61,7 +65,8 @@ public class GameManager {
             // initialize the bufferstrategy.
             bufferStrategy = window.getBufferStrategy();
         }
-        new FixedGameLoop(this).start(tickRate);
+        fixedGameLoop = new FixedGameLoop(this);
+        fixedGameLoop.start(tickRate, method);
     }
 
     /**
@@ -117,6 +122,13 @@ public class GameManager {
      */
     private void invokeTick() {
         gameStack.forEach(GameState::onTick);
+    }
+
+    /**
+     * Notify the gameloop that a drawing/tick update is needed.
+     */
+    public void readyForUpdate() {
+        fixedGameLoop.readyForUpdate();
     }
 
     /**

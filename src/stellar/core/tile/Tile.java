@@ -16,6 +16,8 @@ public class Tile {
     private double x, y, width, height;
     private int uniqueID;
 
+    private boolean requiresDrawingUpdate = true;
+
     /**
      * @param texture  the texture of this tile.
      * @param uniqueID the uniqueID representing this tile.
@@ -163,6 +165,14 @@ public class Tile {
      */
     public int getUniqueID() {
         return uniqueID;
+    }
+
+    public void setRequiresDrawingUpdate(boolean requiresDrawingUpdate) {
+        this.requiresDrawingUpdate = requiresDrawingUpdate;
+    }
+
+    public boolean requiresDrawingUpdate() {
+        return requiresDrawingUpdate;
     }
 
     /**

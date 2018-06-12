@@ -4,12 +4,19 @@ import stellar.core.GameManager;
 import stellar.core.GameWindow;
 import stellar.log.DebugLogger;
 
-public class FixedGameLoop implements Runnable {
+import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+
+public class FixedGameLoop {
 
     private final GameManager manager;
-    private final Thread thread = new Thread(this);
 
-    private boolean doTick, doDraw;
+    private boolean doTick, doDraw, canvasDraw, readyForUpdate;
+    private UpdateMethod method;
+    private ExecutorService service;
 
     private long lastTick, waitTime, now;
     private double TICK_RATE, tickDelta = 0;
@@ -24,61 +31,84 @@ public class FixedGameLoop implements Runnable {
     /**
      * Start the loop.
      */
-    public void start(int tickRate) {
-        // setup the ticking variables.
+    public void start(int tickRate, UpdateMethod method) {
 
+        // set the method and and ticking stuff.
+        this.method = method;
+        this.canvasDraw = manager.getType() == GameWindow.DrawType.PANEL;
         TICK_RATE = 1000000000 / tickRate;
         lastTick = System.nanoTime();
         now = System.currentTimeMillis();
 
-        thread.start();
+        readyForUpdate = true;
+        // setup the thread.
+        setupThread();
+    }
+
+    private void setupThread() {
+        UpdateMethod.UpdateType type = method.getType();
+        if (type == UpdateMethod.UpdateType.MANUAL) {
+            service = Executors.newSingleThreadExecutor();
+            service.submit(() -> {
+                while (manager.isGameRunning()) {
+                    if (readyForUpdate) {
+                        readyForUpdate = false;
+                        doThreadActions();
+                    }
+                }
+            });
+        }
+
+        if (type == UpdateMethod.UpdateType.INTERVAL) {
+            // create a new ExecutorService and schedule it with the method delay.
+            service = Executors.newScheduledThreadPool(1);
+            ((ScheduledExecutorService) service).scheduleWithFixedDelay(this::doThreadActions, 0, method.getInterval(), TimeUnit.MILLISECONDS);
+        }
+
+        if (type == UpdateMethod.UpdateType.CONSTANT) {
+            service = Executors.newSingleThreadExecutor();
+            service.submit(() -> {
+                while (manager.isGameRunning()) {
+                    doThreadActions();
+                }
+            });
+        }
     }
 
     /**
-     * Stop the loop and join the thread.
+     * Tell the thread we are ready for a drawing/tick update.
      */
-    private void stop() {
-        try {
-            thread.join();
-        } catch (InterruptedException exception) {
-            DebugLogger.i("Failed to join gameloop thread!");
-            exception.printStackTrace();
-        }
+    public void readyForUpdate() {
+        readyForUpdate = true;
     }
 
-    @Override
-    public void run() {
-        if (manager.getType() == GameWindow.DrawType.WINDOW) {
-            while (manager.isGameRunning()) {
-                // update tick.
-                doTickJob();
+    /**
+     * Shutdown the executor service.
+     */
+    private void stop() {
+        List<Runnable> r = service.shutdownNow();
+        for (Runnable runnable : r) {
+            DebugLogger.i("Runnable: " + runnable.toString() + " is still running.");
+        }
+        DebugLogger.i(r.size() + " threads are still being processed.");
+        r.clear();
+    }
 
-                if (doTick) {
-                    manager.onTick();
-                }
+    private void doThreadActions() {
+        // update tick.
+        doTickJob();
 
-                if (doDraw) {
-                    manager.onDraw();
-                }
+        if (doTick) {
+            manager.onTick();
+        }
 
-            }
-        } else {
-            // were using a panel to draw, we keep drawing on the swing thread to not cause problems.
-            while (manager.isGameRunning()) {
-                // update tick.
-                doTickJob();
-
-                if (doTick) {
-                    manager.onTick();
-                }
-
-                if (doDraw) {
-                    manager.getWindow().updateCanvas();
-                }
-
+        if (doDraw) {
+            if (canvasDraw) {
+                manager.getWindow().updateCanvas();
+            } else {
+                manager.onDraw();
             }
         }
-        stop();
     }
 
     /**
