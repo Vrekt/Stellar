@@ -28,8 +28,7 @@ public abstract class WorldRenderer extends WorldTileMap {
      * @param graphics      the graphics context
      * @param interpolation whether or not to draw with interpolation.
      */
-    public final void drawAllEntities(final List<Entity> worldEntities, Graphics2D graphics, boolean interpolation, boolean
-            waitForRequiredUpdate) {
+    public final void drawAllEntities(final List<Entity> worldEntities, Graphics2D graphics, boolean interpolation) {
         worldEntities.forEach(entity -> draw(graphics, entity.getTexture(), entity.getX(), entity.getY(), entity.getWidth(), entity
                 .getHeight(), interpolation));
     }
@@ -40,13 +39,10 @@ public abstract class WorldRenderer extends WorldTileMap {
      * @param graphics      the graphics context.
      * @param interpolation whether or not to draw with interpolation.
      */
-    public final void drawAllTiles(Graphics2D graphics, boolean interpolation, boolean waitForRequiredUpdate) {
+    public final void drawAllTiles(Graphics2D graphics, boolean interpolation) {
         for (Location location : tileMap.keySet()) {
             Tile tile = tileMap.get(location);
-            if (waitForRequiredUpdate && tile.requiresDrawingUpdate()) {
-                tile.setRequiresDrawingUpdate(false);
-                draw(graphics, tile.getTexture(), location.getX(), location.getY(), tile.getWidth(), tile.getHeight(), interpolation);
-            }
+            draw(graphics, tile.getTexture(), location.getX(), location.getY(), tile.getWidth(), tile.getHeight(), interpolation);
         }
     }
 
