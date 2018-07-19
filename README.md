@@ -8,3 +8,4 @@ Please open a pull request and I'll review the changes and accept if I find them
 # Documentation
 
 Please visit the [wiki](https://github.com/Vrekt/Stellar/wiki). 
+The wiki is still being written! If you'd like to, please contribute to it :). Thank you.
