@@ -1,5 +1,11 @@
 # Stellar
-Stellar is a 2D game library written in Java. Its meant to aid in 2D game development, making things easier and faster.
+Stellar is a 2D game library written in Java. Its use is to aid in 2D game development, making things easier and faster.
+
+What is Stellar good for?
+
+- Hobby game developers
+- Beginners in game development
+- Prototyping, creating casual 2D games.
 
 # Contributing
 
